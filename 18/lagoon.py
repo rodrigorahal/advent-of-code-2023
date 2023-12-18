@@ -93,6 +93,30 @@ def count(seen, minr, maxr, minc, maxc):
     return C
 
 
+# shoelace + pick's theorem
+# can also be done with coordinate compression
+def area(cmds, with_color=False):
+    b = 0
+    points = [(0, 0)]
+    for cmd, amt, color in cmds:
+        if with_color:
+            cmd, amt, color = parse_color(color)
+        dr, dc = DIRS[cmd]
+        b += amt
+        row, col = points[-1]
+        points.append((row + amt * dr, col + amt * dc))
+
+    A = (
+        abs(
+            sum((y0 + y1) * (x0 - x1) for (x0, y0), (x1, y1) in zip(points, points[1:]))
+        )
+        // 2
+    )
+
+    i = A - b // 2 + 1
+    return i + b
+
+
 def main():
     cmds = parse()
 
@@ -100,6 +124,7 @@ def main():
     minr, maxr, minc, maxc = edges(grid)
     seen = search(grid, (minr - 1, minc - 1))
     print(f"Part 1: {count(seen, minr, maxr, minc, maxc)}")
+    print(f"Part 2: {area(cmds, with_color=True)}")
 
 
 if __name__ == "__main__":
